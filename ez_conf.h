@@ -15,6 +15,8 @@
 #define EZC_VAL_LIM 128
 
 
+#define EZC_LINE_LIM 256
+
 struct ezc_conf_ent;
 struct ezc_conf_ent {
 	char                   key[EZC_KEY_LIM];
@@ -152,7 +154,7 @@ EZC_INTERN int ezc_check(char c)
 EZC_API int ezc_parse(char *pth)
 {
 	FILE *fd;
-	char line[64];
+	char line[EZC_LINE_LIM];
 	int line_c = 0;
 
 	int low_lim_key;
@@ -179,7 +181,7 @@ EZC_API int ezc_parse(char *pth)
 	}
 
 
-	while(fgets(line, 64, fd)) {
+	while(fgets(line, EZC_LINE_LIM, fd)) {
 		/*
 		 * Adjust null-terminator.
 		 */
