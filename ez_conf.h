@@ -148,54 +148,6 @@ EZC_INTERN unsigned long ezc_hash(char *str)
 }
 
 
-EZC_API int ezc_add(char *key, char *val)
-{
-	unsigned long hash;
-	unsigned char row;
-	struct ezc_conf_ent *ptr;
-	struct ezc_conf_ent *ent;
-
-	hash = ezc_hash(key);
-	row = hash % EZC_ROWS;
-
-	if(g_ezc_hdl.tbl[row] == NULL) {	
-		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
-			return -1;
-
-		strcpy(ent->key, key);
-		strcpy(ent->val, val);
-		ent->next = NULL;
-		
-		g_ezc_hdl.tbl[row] = ent;
-	}
-	else {
-		ptr = g_ezc_hdl.tbl[row];
-		while(ptr->next) {
-			/* Overwrite value */
-			if(strcmp(ptr->key, key) == 0) {
-				strcpy(ptr->val, val);
-				return 0;
-			}
-
-			ptr = ptr->next;
-		}
-
-		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
-			return -1;
-
-		strcpy(ent->key, key);
-		strcpy(ent->val, val);
-		ent->next = NULL;
-
-		ptr->next = ent;
-	}
-
-	g_ezc_hdl.num++;
-
-	return 0;
-}
-
-
 EZC_INTERN int ezc_check(char c)
 {
 	/* Is the digit a space */
@@ -388,7 +340,7 @@ EZC_API int ezc_parse(char *pth)
 		memcpy(val, line + low_lim_val, len);
 		val[len] = 0;
 
-		if(ezc_add(key, val) < 0)
+		if(ezc_set(key, val) < 0)
 			goto err_close;
 	}
 
@@ -403,6 +355,54 @@ err_close:
 	fclose(fd);
 
 	return -1;
+}
+
+
+EZC_API int ezc_set(char *key, char *val)
+{
+	unsigned long hash;
+	unsigned char row;
+	struct ezc_conf_ent *ptr;
+	struct ezc_conf_ent *ent;
+
+	hash = ezc_hash(key);
+	row = hash % EZC_ROWS;
+
+	if(g_ezc_hdl.tbl[row] == NULL) {	
+		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
+			return -1;
+
+		strcpy(ent->key, key);
+		strcpy(ent->val, val);
+		ent->next = NULL;
+		
+		g_ezc_hdl.tbl[row] = ent;
+	}
+	else {
+		ptr = g_ezc_hdl.tbl[row];
+		while(ptr->next) {
+			/* Overwrite value */
+			if(strcmp(ptr->key, key) == 0) {
+				strcpy(ptr->val, val);
+				return 0;
+			}
+
+			ptr = ptr->next;
+		}
+
+		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
+			return -1;
+
+		strcpy(ent->key, key);
+		strcpy(ent->val, val);
+		ent->next = NULL;
+
+		ptr->next = ent;
+	}
+
+	g_ezc_hdl.num++;
+
+	return 0;
 }
 
 
@@ -427,31 +427,6 @@ EZC_API char *ezc_get(char *key)
 	return NULL;
 }
 
-
-EZC_API int ezc_set(char *key, char *val)
-{
-	unsigned long hash;
-	unsigned char row;
-	struct ezc_conf_ent *ptr;
-
-	hash = ezc_hash(key);
-	row = hash % EZC_ROWS;
-
-	ptr = g_ezc_hdl.tbl[row];
-	while(ptr) {
-		if(strcmp(ptr->key, key) == 0) {
-			strcpy(ptr->val, val);
-			return 0;
-		}
-
-		ptr = ptr->next;
-	}
-
-	if(ezc_add(key, val) < 0)
-		return -1;
-
-	return 0;
-}
 
 
 EZC_API void ezc_dump(void)
