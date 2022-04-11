@@ -4,10 +4,10 @@
  |  ____|___  /        / ____/ __ \| \ | |  ____|_   _/ ____|
  | |__     / /        | |   | |  | |  \| | |__    | || |  __ 
  |  __|   / /         | |   | |  | | . ` |  __|   | || | |_ |
- | |____ / /__  ____  | |___| |__| | |\  | |     _| || |__| |
+ | |____ / /__  _____ | |___| |__| | |\  | |     _| || |__| |
  |______/_____||_____| \_____\____/|_| \_|_|    |_____\_____|                                 
 
 
 
-This is a single header library to handle configuration files.
+This is a single header library to handle configuration-tables.
 
