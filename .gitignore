@@ -2,7 +2,6 @@
 *.o
 *.vim
 *.sw*
-a.out
 test/test
 
 log.txt
