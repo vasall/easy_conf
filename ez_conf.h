@@ -4,6 +4,7 @@
 #define EZC_API                 extern
 #define EZC_INTERN              static
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,35 +119,27 @@ EZC_INTERN unsigned long ezc_hash(char *str)
 
 EZC_INTERN int ezc_check(char c)
 {
-	/* Is the digit a space */
-	if(c == 0x20)
+	if(isspace(c))
 		return 1;
 
-	/* Is the digit a number */
-	if(c >= 0x30 && c <= 0x39)
+	if(isdigit(c))
 		return 2;
 
-	/* Is the digit a uppercase letter */
-	if(c >= 0x41 && c <= 0x5A)
+	if(isupper(c))
 		return 3;
 
-	/* Is the digit a lowercase letter */
-	if(c >= 0x61 && c <= 0x7A)
+	if(islower(c))
 		return 4;
 
-	/* Is the digit an equal sign */
-	if(c == 0x3D)
+	if(c == '=')
 		return 5;
 
-	/* If the digit is a hashtag */
-	if(c == 0x23)
+	if(c == '#')
 		return 6;
 
-	/* General catcher */
-	if(c >= 0x21 && c <= 0x7E)
+	if(ispunct(c))
 		return 7;
 
-	/* Everything else */
 	return 0;
 }
 
