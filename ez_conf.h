@@ -30,23 +30,9 @@ struct ezc_conf_hdl {
 
 
 /*
- * The global ez_conf handle.
+ * Clear the global config table and free the allocated memory.
  */
-EZC_API struct ezc_conf_hdl g_ezc_hdl;
-
-
-/*
- * Initialize the global easy config handle.
- *
- * Returns: 0 on success or -1 if an error occurred
- */
-EZC_API int ezc_init(void);
-
-
-/*
- * Close the global config table and free the allocated memory.
- */
-EZC_API void ezc_close(void);
+EZC_API void ezc_clear(void);
 
 
 /*
@@ -91,27 +77,7 @@ EZC_API void ezc_dump(void);
 struct ezc_conf_hdl g_ezc_hdl;
 
 
-EZC_API int ezc_init(void)
-{
-	int i;
-
-	/*
-	 * Reset the root pointers in the hashtbl.
-	 */
-	for(i = 0; i < EZC_ROWS; i++) {
-		g_ezc_hdl.tbl[i] = NULL;
-	}
-
-	/*
-	 * Set the attributes.
-	 */
-	g_ezc_hdl.num = 0;
-
-	return 0;
-}
-
-
-EZC_API void ezc_close(void)
+EZC_API void ezc_clear(void)
 {
 	int i;
 	struct ezc_conf_ent *ptr;
