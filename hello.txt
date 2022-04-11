@@ -1,0 +1,8 @@
+  # no man sky
+   ara     =      12  
+   beta   =    13  
+hollymolly = 15  
+naturlam = 12.45667
+   testman = ::1
+
+   ara=helloworldman
