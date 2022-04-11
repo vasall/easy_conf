@@ -32,9 +32,9 @@ struct ezc_conf_hdl {
 
 
 /*
- * Clear the global config table and free the allocated memory.
+ * Reset the global config table and free the allocated memory.
  */
-EZC_API void ezc_clear(void);
+EZC_API void ezc_reset(void);
 
 
 /*
@@ -79,7 +79,7 @@ EZC_API void ezc_dump(void);
 struct ezc_conf_hdl g_ezc_hdl;
 
 
-EZC_API void ezc_clear(void)
+EZC_API void ezc_reset(void)
 {
 	int i;
 	struct ezc_conf_ent *ptr;

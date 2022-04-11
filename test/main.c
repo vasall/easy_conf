@@ -8,7 +8,7 @@
 int main(void)
 {
 	printf("Init EZC...");
-	ezc_clear();
+	ezc_reset();
 	printf("done\n");
 
 	printf("Read file...");
@@ -35,6 +35,6 @@ int main(void)
 	printf("-----\n");
 
 err_close:
-	ezc_clear();
+	ezc_reset();
 	return 0;
 }
