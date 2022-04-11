@@ -18,7 +18,7 @@
 
 #define EZC_LINE_LIM 256
 
-struct ezc_conf_ent;
+
 struct ezc_conf_ent {
 	char                   key[EZC_KEY_LIM];
 	char          	       val[EZC_VAL_LIM];
@@ -75,6 +75,7 @@ EZC_API char *ezc_get(char *key);
 EZC_API void ezc_dump(void);
 
 
+#endif /* _EZC_CONF_H */
 #ifdef EZC_DEF
 
 struct ezc_conf_hdl g_ezc_hdl;
@@ -169,7 +170,7 @@ EZC_API int ezc_parse(char *pth)
 	 * Open the file.
 	 */
 	if(!(fd = fopen(pth, "r"))) {
-		printf("Failed to open\n");
+		fprintf(stderr, "Failed to open config %s\n", pth);
 		return -1;
 	}
 
@@ -189,8 +190,6 @@ EZC_API int ezc_parse(char *pth)
 
 		phs = 0;
 		flg = 0;
-
-		i = 0;
 
 		for(i = 0; i < len; i++) {
 			/*
@@ -295,11 +294,11 @@ EZC_API int ezc_parse(char *pth)
 
 		len = (high_lim_key-low_lim_key) + 1;
 		memcpy(key, line + low_lim_key, len);
-		key[len] = 0;
+		key[len] = '\0';
 
 		len = (high_lim_val-low_lim_val) + 1;
 		memcpy(val, line + low_lim_val, len);
-		val[len] = 0;
+		val[len] = '\0';
 
 		if(ezc_set(key, val) < 0)
 			goto err_close;
@@ -408,5 +407,3 @@ EZC_API void ezc_dump(void)
 }
 
 #endif
-
-#endif /* _EZC_CONF_H */
