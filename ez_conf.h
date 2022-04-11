@@ -15,16 +15,10 @@
 #define EZC_VAL_LIM 128
 
 
-enum ezc_type {
-	EZC_TYPE_INT =          1,
-	EZC_TYPE_DOUBLE =       2,
-	EZC_TYPE_STRING =       3
-};
-
 struct ezc_conf_ent;
 struct ezc_conf_ent {
-	char                   key[32];
-	char          	       val[128];
+	char                   key[EZC_KEY_LIM];
+	char          	       val[EZC_VAL_LIM];
 
 	struct ezc_conf_ent    *next;
 };
