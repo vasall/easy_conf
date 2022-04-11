@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define EZC_DEF
-#include "ez_conf.h"
+#include "../ez_conf.h"
 
 int main(void)
 {
