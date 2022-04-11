@@ -18,6 +18,7 @@
 #define EZC_LINE_LIM 256
 
 
+struct ezc_conf_ent;
 struct ezc_conf_ent {
 	char                   key[EZC_KEY_LIM];
 	char          	       val[EZC_VAL_LIM];
