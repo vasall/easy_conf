@@ -37,6 +37,8 @@ EZC_API struct ezc_conf_hdl g_ezc_hdl;
 
 /*
  * Initialize the global easy config handle.
+ *
+ * Returns: 0 on success or -1 if an error occurred
  */
 EZC_API int ezc_init(void);
 
