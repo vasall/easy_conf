@@ -28,7 +28,7 @@ struct ezc_conf_ent {
 
 struct ezc_conf_hdl {
 	struct ezc_conf_ent *tbl[EZC_ROWS];
-	int                 num;
+	s32                 num;
 };
 
 
@@ -45,7 +45,7 @@ EZC_API void ezc_reset(void);
  *
  * Returns: 0 on success or -1 if an error occurred
  */
-EZC_API int ezc_parse(char *pth);
+EZC_API s8 ezc_parse(char *pth);
 
 
 /*
@@ -56,7 +56,7 @@ EZC_API int ezc_parse(char *pth);
  *
  * Returns: 0 on success or -1 if an error occurred
  */
-EZC_API int ezc_set(char *key, char *val); 
+EZC_API s8 ezc_set(char *key, char *val); 
 
 
 /*
@@ -83,7 +83,7 @@ struct ezc_conf_hdl g_ezc_hdl;
 
 EZC_API void ezc_reset(void)
 {
-	int i;
+	s32 i;
 	struct ezc_conf_ent *ptr;
 	struct ezc_conf_ent *next;
 
@@ -106,10 +106,10 @@ EZC_API void ezc_reset(void)
 }
 
 
-EZC_INTERN unsigned long ezc_hash(char *str)
+EZC_INTERN u64 ezc_hash(char *str)
 {
-	unsigned long hash = 5381;
-	int c;
+	u64 hash = 5381;
+	s32 c;
 
 	while((c = *str++))
 		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
@@ -118,7 +118,7 @@ EZC_INTERN unsigned long ezc_hash(char *str)
 }
 
 
-EZC_INTERN int ezc_check(char c)
+EZC_INTERN u8 ezc_check(char c)
 {
 	if(isspace(c))
 		return 1;
@@ -145,20 +145,20 @@ EZC_INTERN int ezc_check(char c)
 }
 
 
-EZC_API int ezc_parse(char *pth)
+EZC_API s8 ezc_parse(char *pth)
 {
 	FILE *fd;
 	char line[EZC_LINE_LIM];
-	int line_c = 0;
+	s32 line_c = 0;
 
-	int low_lim_key;
-	int high_lim_key;
-	int low_lim_val;
-	int high_lim_val;
-	int i;
-	int ret;
-	int phs;
-	int flg;
+	s32 low_lim_key;
+	s32 high_lim_key;
+	s32 low_lim_val;
+	s32 high_lim_val;
+	s32 i;
+	s32 ret;
+	s32 phs;
+	s32 flg;
 
 	char key[EZC_KEY_LIM];
 	char val[EZC_VAL_LIM];
@@ -179,7 +179,7 @@ EZC_API int ezc_parse(char *pth)
 		/*
 		 * Adjust null-terminator.
 		 */
-		int len = strlen(line);
+		s32 len = strlen(line);
 
 		line_c++;
 
@@ -318,9 +318,9 @@ err_close:
 }
 
 
-EZC_API int ezc_set(char *key, char *val)
+EZC_API s8 ezc_set(char *key, char *val)
 {
-	unsigned long hash;
+	u64 hash;
 	unsigned char row;
 	struct ezc_conf_ent *ptr;
 	struct ezc_conf_ent *ent;
@@ -368,7 +368,7 @@ EZC_API int ezc_set(char *key, char *val)
 
 EZC_API char *ezc_get(char *key)
 {
-	unsigned long hash;
+	u64 hash;
 	unsigned char row;
 	struct ezc_conf_ent *ptr;
 
@@ -391,7 +391,7 @@ EZC_API char *ezc_get(char *key)
 
 EZC_API void ezc_dump(void)
 {
-	int i;
+	s32 i;
 	struct ezc_conf_ent *ptr;
 
 	for(i = 0; i < EZC_ROWS; i++) {

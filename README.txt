@@ -24,7 +24,7 @@ These are the most important functions:
     the end of the use of the library.
 
  
-  int ezc_parse(char *pth)
+  s8 ezc_parse(char *pth)
 
     With this function a configuration file can be loaded which should conform
     to the following format:
@@ -45,7 +45,7 @@ These are the most important functions:
     Otherwise NULL will be returned.
 
 
-  int ezc_set(char *key, char *val)
+  s8 ezc_set(char *key, char *val)
 
     Through this function you can modify and set key-value-pairs in the table.
     If the key exists, it will be overwritten, if not then a new entry will be
