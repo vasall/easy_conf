@@ -1,82 +1,10 @@
-#ifndef _EZC_CONF_H
-#define _EZC_CONF_H
-
-#define EZC_API                 extern
-#define EZC_INTERN              static
+#include "ez_conf.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-#define EZC_ROWS 12
-
-#define EZC_KEY_LIM 32
-#define EZC_VAL_LIM 128
-
-#define EZC_LINE_LIM 256
-
-
-struct ezc_conf_ent;
-struct ezc_conf_ent {
-	char                   key[EZC_KEY_LIM];
-	char          	       val[EZC_VAL_LIM];
-
-	struct ezc_conf_ent    *next;
-};
-
-struct ezc_conf_hdl {
-	struct ezc_conf_ent *tbl[EZC_ROWS];
-	s32                 num;
-};
-
-
-/*
- * Reset the global config table and free the allocated memory.
- */
-EZC_API void ezc_reset(void);
-
-
-/*
- * Read a file and parse the config table into the hashtbl.
- *
- * @pth: A nullterminated buffer containing the path to the config file
- *
- * Returns: 0 on success or -1 if an error occurred
- */
-EZC_API s8 ezc_parse(char *pth);
-
-
-/*
- * Update the value of a key in the hashtbl.
- *
- * @key: The keyword to search for
- * @val: The new value
- *
- * Returns: 0 on success or -1 if an error occurred
- */
-EZC_API s8 ezc_set(char *key, char *val); 
-
-
-/*
- * Get the value of a keyword.
- *
- * @key: The nullterminated buffer containing the key
- *
- * Returns: A nullterminated string containing the value
- */
-EZC_API char *ezc_get(char *key);
-
-
-/*
- * Dump the whole easy config table in the console.
- */
-EZC_API void ezc_dump(void);
-
-
-#endif /* _EZC_CONF_H */
-#ifdef EZC_DEF
 
 struct ezc_conf_hdl g_ezc_hdl;
 
@@ -95,7 +23,7 @@ EZC_API void ezc_reset(void)
 		ptr = g_ezc_hdl.tbl[i];
 		while(ptr) {
 			next = ptr->next;
-			free(ptr);
+			sfree(ptr);
 			ptr = next;
 		}
 
@@ -106,7 +34,7 @@ EZC_API void ezc_reset(void)
 }
 
 
-EZC_INTERN u64 ezc_hash(char *str)
+EZC_INTERN u64 ezc_hash(s8 *str)
 {
 	u64 hash = 5381;
 	s32 c;
@@ -118,7 +46,7 @@ EZC_INTERN u64 ezc_hash(char *str)
 }
 
 
-EZC_INTERN u8 ezc_check(char c)
+EZC_INTERN u8 ezc_check(s8 c)
 {
 	if(isspace(c))
 		return 1;
@@ -145,10 +73,10 @@ EZC_INTERN u8 ezc_check(char c)
 }
 
 
-EZC_API s8 ezc_parse(char *pth)
+EZC_API s8 ezc_parse(s8 *pth)
 {
 	FILE *fd;
-	char line[EZC_LINE_LIM];
+	s8 line[EZC_LINE_LIM];
 	s32 line_c = 0;
 
 	s32 low_lim_key;
@@ -160,26 +88,32 @@ EZC_API s8 ezc_parse(char *pth)
 	s32 phs;
 	s32 flg;
 
-	char key[EZC_KEY_LIM];
-	char val[EZC_VAL_LIM];
+	s8 key[EZC_KEY_LIM];
+	s8 val[EZC_VAL_LIM];
 
-	if(!pth)
+	s32 len;
+
+	if(!pth) {
+		ALARM(ALARM_WARN, "pth undefined");
 		return -1;
+	}
 
 	/*
 	 * Open the file.
 	 */
-	if(!(fd = fopen(pth, "r"))) {
-		fprintf(stderr, "Failed to open config %s\n", pth);
-		return -1;
+	if(!(fd = fopen((char *)pth, "r"))) {
+		ALARM(ALARM_ERR, "Failed to open the file");
+		goto err_return;
 	}
 
 
-	while(fgets(line, EZC_LINE_LIM, fd)) {
+	while(fgets((char *)line, EZC_LINE_LIM, fd)) {
 		/*
 		 * Adjust null-terminator.
 		 */
-		s32 len = strlen(line);
+		if((len = tozero(line)) < 0) {
+			goto err_return;
+		}
 
 		line_c++;
 
@@ -314,14 +248,17 @@ EZC_API s8 ezc_parse(char *pth)
 err_close:
 	fclose(fd);
 
+
+err_return:
+	ALARM(ALARM_ERR, "Failed to parse config file");
 	return -1;
 }
 
 
-EZC_API s8 ezc_set(char *key, char *val)
+EZC_API s8 ezc_set(s8 *key, s8 *val)
 {
 	u64 hash;
-	unsigned char row;
+	u8 row;
 	struct ezc_conf_ent *ptr;
 	struct ezc_conf_ent *ent;
 
@@ -329,11 +266,11 @@ EZC_API s8 ezc_set(char *key, char *val)
 	row = hash % EZC_ROWS;
 
 	if(g_ezc_hdl.tbl[row] == NULL) {	
-		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
+		if(!(ent = smalloc(sizeof(struct ezc_conf_ent))))
 			return -1;
 
-		strcpy(ent->key, key);
-		strcpy(ent->val, val);
+		cpytozero(ent->key, key);
+		cpytozero(ent->val, val);
 		ent->next = NULL;
 		
 		g_ezc_hdl.tbl[row] = ent;
@@ -342,19 +279,19 @@ EZC_API s8 ezc_set(char *key, char *val)
 		ptr = g_ezc_hdl.tbl[row];
 		while(ptr->next) {
 			/* Overwrite value */
-			if(strcmp(ptr->key, key) == 0) {
-				strcpy(ptr->val, val);
+			if(cmptozero(ptr->key, key) == 0) {
+				cpytozero(ptr->val, val);
 				return 0;
 			}
 
 			ptr = ptr->next;
 		}
 
-		if(!(ent = malloc(sizeof(struct ezc_conf_ent))))
+		if(!(ent = smalloc(sizeof(struct ezc_conf_ent))))
 			return -1;
 
-		strcpy(ent->key, key);
-		strcpy(ent->val, val);
+		cpytozero(ent->key, key);
+		cpytozero(ent->val, val);
 		ent->next = NULL;
 
 		ptr->next = ent;
@@ -366,10 +303,10 @@ EZC_API s8 ezc_set(char *key, char *val)
 }
 
 
-EZC_API char *ezc_get(char *key)
+EZC_API s8 *ezc_get(s8 *key)
 {
 	u64 hash;
-	unsigned char row;
+	u8 row;
 	struct ezc_conf_ent *ptr;
 
 	hash = ezc_hash(key);
@@ -377,7 +314,7 @@ EZC_API char *ezc_get(char *key)
 
 	ptr = g_ezc_hdl.tbl[row];
 	while(ptr) {
-		if(strcmp(ptr->key, key) == 0) {
+		if(cmptozero(ptr->key, key) == 0) {
 			return ptr->val;
 		}
 
@@ -399,11 +336,9 @@ EZC_API void ezc_dump(void)
 
 		ptr = g_ezc_hdl.tbl[i];
 		while(ptr) {
-			printf("%s: %s\n", ptr->key, ptr->val);
+			printf("%s: %s\n", (char *)ptr->key, (char *)ptr->val);
 			ptr = ptr->next;
 		}
 
 	}
 }
-
-#endif
